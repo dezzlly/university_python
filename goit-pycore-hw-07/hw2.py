@@ -117,6 +117,40 @@ def show_birthday(args, book):
 def birthdays(_, book):
     return "\n".join(book.get_upcoming_birthdays())
 
+@input_error
+def add(args, book):
+    """Добавляет новый контакт с именем и номером телефона."""
+    name, phone = args
+    record = book.find(name)
+    if record:
+        record.add_phone(phone)
+        return f"Phone {phone} added to {name}."
+    else:
+        record = Record(name)
+        record.add_phone(phone)
+        book.add_record(record)
+        return f"Contact {name} with phone {phone} added."
+
+@input_error
+def phone(args, book):
+    """Показывает номера телефонов для указанного контакта."""
+    name = args[0]
+    record = book.find(name)
+    if record:
+        phones = ", ".join(phone.value for phone in record.phones)
+        return f"{name}'s phones: {phones}"
+    return "Contact not found."
+
+@input_error
+def change(args, book):
+    """Изменяет существующий номер телефона на новый."""
+    name, old_phone, new_phone = args
+    record = book.find(name)
+    if record:
+        result = record.edit_phone(old_phone, new_phone)
+        return result
+    return "Contact not found."
+
 def main():
     book = AddressBook()
     print("Welcome to the assistant bot!")
@@ -129,6 +163,12 @@ def main():
             break
         elif command == "hello":
             print("How can I help you?")
+        elif command == "add":
+            print(add(args, book))
+        elif command == "phone":
+            print(phone(args, book))
+        elif command == "change":
+            print(change(args, book))
         elif command == "add-birthday":
             print(add_birthday(args, book))
         elif command == "show-birthday":
